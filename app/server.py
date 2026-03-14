@@ -837,9 +837,11 @@ if __name__ == '__main__':
     changes_thread = Thread(target=run_watch_changes_in_db)
     changes_thread.start()
 
+    port = int(os.getenv('PORT', 5001))
+
     if os.path.isdir('/cert') and os.path.exists('/cert/fullchain.pem') and os.path.exists('/cert/privkey.pem'):
         context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
         context.load_cert_chain('/cert/fullchain.pem', '/cert/privkey.pem')
-        web.run_app(app, host='0.0.0.0', port=5001, ssl_context=context)
+        web.run_app(app, host='0.0.0.0', port=port, ssl_context=context)
     else:
-        web.run_app(app, host='0.0.0.0', port=5001)
+        web.run_app(app, host='0.0.0.0', port=port)
