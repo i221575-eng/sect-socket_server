@@ -812,26 +812,27 @@ async def get_groups(sid, data: dict):
     await sio.emit('recieve_users', {'users': _users}, room=sid)
 
 @sio.event
-def disconnect(sid):
-    print('disconnect ', sid)
+def disconnect(sid, reason):
+    print('disconnect ', sid, reason)
 
     # remove the connector from the dictionaries
     id = socketsToConnectors.get(sid, None)
     if id is not None:
-        connectorsToSockets.pop(id)
-        socketsToConnectors.pop(sid)
+        connectorsToSockets.pop(id, None)
+        socketsToConnectors.pop(sid, None)
 
         # remove the connector from the networksToConnectors and connectorsToNetworks
         network_id = connectorsToNetworks.get(id, None)
         if network_id is not None:
-            networksToConnectors[network_id].remove(id)
-            connectorsToNetworks.pop(id)
+            if id in networksToConnectors.get(network_id, []):
+                networksToConnectors[network_id].remove(id)
+            connectorsToNetworks.pop(id, None)
 
     # remove the client from the dictionaries
     id = socketsToClients.get(sid, None)
     if id is not None:
-        clientsToSockets.pop(id)
-        socketsToClients.pop(sid)
+        clientsToSockets.pop(id, None)
+        socketsToClients.pop(sid, None)
 
 if __name__ == '__main__':    
     changes_thread = Thread(target=run_watch_changes_in_db)
